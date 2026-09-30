@@ -39,7 +39,7 @@
 
 ## What This Does
 
-<!-- Three or four sentences: what a user asks for, and what they get back. -->
+FitFindr is an agent that helps a user find clothing that matches criteria such as description, category, size, and price. It searches the listings data and selects a matching item. It then uses the user's wardrobe to suggest an outfit for that item and creates a short fit card. The agent uses a planning loop to decide what tool to call next based on the result of the search.
 
 
 
