@@ -64,6 +64,10 @@
 - **Returns: A list of matching listing dictionaries, best match first. Each listing contains id, title, description, category, style_tags, size, condition, price, colors, brand, and platform**
 - **When it has nothing: Returns an empty list**
 
+**Size matching rule:** Size matching is case-insensitive. A requested size matches the same size or a combined size containing that size, such as `M` matching `M` and `S/M`, but `L` does not match `XL`.
+
+**Price rule:** `max_price` is inclusive, so a listing priced exactly at the maximum is allowed.
+
 ### `suggest_outfit`
 
 - **What it does: Uses a selected listing and the user's wardrobe to suggest one or two outfits.**
@@ -93,11 +97,13 @@
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule: If search_listings returns an empty list, the agent prints a message to the session and stops. Otherwise, it takes the first matching listing and passes that to suggest_outfit. The resulting outfit and selected item are then passed to create_fit_card.**
-
+**Branch rule:  If search_listings returns an empty list, the agent stores a message in `session["error"]` explaining what the user can change and stops without calling `suggest_outfit` or `create_fit_card`. Otherwise, it selects the first matching listing, stores it in `session["selected_item"]`, and passes it to `suggest_outfit`. The outfit is stored in `session["outfit_suggestion"]` and then passed with the selected item to `create_fit_card`.**
+pyth
 **Where it lives:** `agent.py::run_agent`
 
-**How the query is parsed: Regex will be used to extract the size and maximum price from the user's query. The remaining text will be used as the item description.** <!-- regex, string splitting, or asking the model — say which -->
+**How the query is parsed:** 
+Regex is used to extract the size and maximum price from the user's query. The remaining text is used as the item description.
+<!-- regex, string splitting, or asking the model — say which -->
 
 **What moves through the session: User query → session["query"], parsed description/size/max price → session["parsed"], search results from search_listings → session["search_results"], selected listing → session["selected_item"], outfit returned by suggest_outfit → session["outfit_suggestion"], fit-card text from create_fit_card → session["fit_card"], and an error or stop message → session["error"] when the search returns no results.** <!-- which fields, in what order -->
 
@@ -113,11 +119,48 @@
 **One full query**
 
 ```
-$ python app.py ask '...'
+$ python app.py ask 'vintage graphic tee under $30'
 
 ```
 
-**The three tools, tested one at a time**
+Found:    Y2K Baby Tee — Butterfly Print — $18.0 on depop
+
+  Outfit:   Here are two practical outfit suggestions combining the Y2K butterfly baby tee with your existing wardrobe:
+
+### Outfit 1: Streetwear Y2K Contrast
+This look balances the fitted, feminine Y2K aesthetic of the baby tee with relaxed, streetwear-inspired bottoms and classic outerwear.
+
+* **Top:** Y2K Baby Tee — Butterfly Print
+* **Bottoms:** Baggy straight-leg jeans (dark blue/indigo)
+* **Outerwear:** Vintage black denim jacket
+* **Shoes:** Chunky white sneakers
+* **Accessories:** Black crossbody bag
+
+**Why it works:** Pairing the cropped, fitted baby tee with low-slung or baggy straight-leg jeans hits the classic early 2000s proportion play. Layering the vintage black denim jacket on top keeps the color palette grounded, while the chunky white sneakers tie in the white base of the tee.
+
+---
+
+### Outfit 2: Casual Earth-Tone Mix
+This outfit tones down the graphic tee by mixing it with minimal, neutral pieces for an easy, everyday look.
+
+* **Top:** Y2K Baby Tee — Butterfly Print
+* **Bottoms:** Wide-leg khaki trousers
+* **Accessories:** Brown leather belt + Black crossbody bag
+* **Shoes:** Chunky white sneakers
+
+**Why it works:** The khaki wide-leg trousers bring a minimal, grounded feel that offsets the playful pink and purple butterfly graphic. Tucking the baby tee in (or letting the cropped hem sit right at the waistband) alongside the brown leather belt adds subtle definition to the waist, finished cleanly with the white sneakers.
+
+  Fit card: Obsessed with this Y2K butterfly baby tee! It’s giving total early 2000s streetwear vibes and looks so cute paired with baggy denim. Grab it on my Depop for just $18 before it’s gone! 🦋✨
+
+0 model calls this session, 2 served from cache
+(.venv)
+GWCal@laptop MINGW64 ~/OneDrive/Desktop/ai201-project2-fitfindr-starter-v2026 (main)
+$ python app.py ask 'designer ballgown size XXS under $5'
+
+  No matching listings were found. Try a broader description, a different size, or a higher maximum price.
+
+0 model calls this session
+
 
 ```
 $ python -c "from tools import search_listings; print(search_listings('graphic tee', max_price=30))"
@@ -153,7 +196,7 @@ Here are two practical outfit suggestions using the Vintage Levi's 501 Jeans and
 
 
 ```
-$ python -c "from tools import create_fit_card; ..."
+$ python -c "from tools import create_fit_card; from utils.data_loader import load_listings; print(create_fit_card('jeans and white sneakers', load_listings()[0]))"
 
 ```
 Nothing beats a classic pair of vintage Levi’s 501s, especially styled with crisp white sneakers for that effortless everyday look. Grabbed these on Depop for just $38 and I’m obsessed with the wash. Perfect casual streetwear vibe for running errands.
