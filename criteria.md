@@ -28,7 +28,7 @@ tool calls and returns a fit card — in at least 4 of 5 tries.
 <!-- Why 4 of 5 and not 5 of 5? Something about your search, probably —
      "my search is a plain keyword match and some phrasings will miss" is a
      real answer. -->
-
+Search relies on matching the user's wording to listing data, so some actually valid requests may use words that do not match the listings exactly. A 4 of 5 target still means the full happy path should work most of the time.
 ---
 
 ## 2. An impossible query stops before the second tool
@@ -40,10 +40,12 @@ Given a query that matches no listings, the agent stops before calling
 <!-- Why is 5 of 5 reasonable here when criterion 1 isn't? What's different
      about this path? -->
 
+The empty-search branch does not depend on the model and should follow the same rule every time. When there are no results, the agent should always stop safely.
 ---
 
-## 3. Something about state
+## 3. The same item passes through the session
 
+In 5 of 5 matching-query tries, the listing id in session["selected_item"] matches the listing id received by suggest_outfit.
 <!-- YOU WRITE THIS ONE.
 
      How would you know that the item your search found is the same item the
@@ -58,12 +60,15 @@ Given a query that matches no listings, the agent stops before calling
 
 **Why this target:**
 
+I chose 5 of 5 because the selected item should be carried through the session without changing. Listing id gives me a specific value I can compare to verify.
+
 
 
 ---
 
-## 4. Something about the fit card
+## 4. Fit cards should vary between runs
 
+For the same item and outfit, at least 4 of 5 repeated fit-card runs must produce captions with different opening sentences.
 <!-- YOU WRITE THIS ONE.
 
      The fit card calls a model, so the same input can produce different words
@@ -79,11 +84,14 @@ Given a query that matches no listings, the agent stops before calling
 
 **Why this target:**
 
+I chose 4 of 5 because the fit-card tool uses a model, so some variation is expected but occasional repeated wording is acceptable. Checking the opening sentence gives me a simple thing to measure for repeated outputs.
 
 
 ---
 
-## 5. Your choice
+## 5. Search puts the strongest match first
+
+In 4 of 5 searches that return multiple listings, the first result must have a keyword-overlap score at least as high as every later result.
 
 <!-- YOU WRITE THIS ONE TOO.
 
@@ -95,6 +103,8 @@ Given a query that matches no listings, the agent stops before calling
 
 
 **Why this target:**
+
+I chose 4 of 5 because the search is based on keyword overlap, so the strongest matching listing should normally appear first even though some queries may be ambiguous.
 
 
 
