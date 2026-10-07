@@ -59,24 +59,24 @@
 
 ### `search_listings`
 
-- **What it does:**
-- **Inputs:** <!-- name and type each: `max_price` (float), not "a price" -->
-- **Returns:**
-- **When it has nothing:**
+- **What it does: Searches the listings data for clothing that matches a description and, when provided, filters by size and maximum price.**
+- **Inputs: description (str), size (str | None), max_price (float | None)** <!-- name and type each: `max_price` (float), not "a price" -->
+- **Returns: A list of matching listing dictionaries, best match first. Each listing contains id, title, description, category, style_tags, size, condition, price, colors, brand, and platform**
+- **When it has nothing: Returns an empty list**
 
 ### `suggest_outfit`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does: Uses a selected listing and the user's wardrobe to suggest one or two outfits.**
+- **Inputs: new_item (dict), wardrobe (dict with an items key holding a list of items) **
+- **Returns: A non-empty str containing outfit suggestions.**
+- **When it has nothing: returns general styling advice for the new item**
 
 ### `create_fit_card`
 
-- **What it does:**
-- **Inputs:**
-- **Returns:**
-- **When it has nothing:**
+- **What it does: Creates a short social-media-style caption for the selected item and suggested outfit.**
+- **Inputs: outfit (str), new_item (dict)**
+- **Returns: A str containing a two-to-four sentence fit-card caption that mentions the item, price, platform, and overall vibe**
+- **When it has nothing: If outfit is empty or only whitespace, returns a descriptive message**
 
 ---
 
@@ -93,13 +93,13 @@
      The grader checks your code against what you claim here, so the file and
      function have to be real. -->
 
-**Branch rule:**
+**Branch rule: If search_listings returns an empty list, the agent prints a message to the session and stops. Otherwise, it takes the first matching listing and passes that to suggest_outfit. The resulting outfit and selected item are then passed to create_fit_card.**
 
 **Where it lives:** `agent.py::run_agent`
 
-**How the query is parsed:** <!-- regex, string splitting, or asking the model — say which -->
+**How the query is parsed: Regex will be used to extract the size and maximum price from the user's query. The remaining text will be used as the item description.** <!-- regex, string splitting, or asking the model — say which -->
 
-**What moves through the session:** <!-- which fields, in what order -->
+**What moves through the session: User query → session["query"], parsed description/size/max price → session["parsed"], search results from search_listings → session["search_results"], selected listing → session["selected_item"], outfit returned by suggest_outfit → session["outfit_suggestion"], fit-card text from create_fit_card → session["fit_card"], and an error or stop message → session["error"] when the search returns no results.** <!-- which fields, in what order -->
 
 ---
 
